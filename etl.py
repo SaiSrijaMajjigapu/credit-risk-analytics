@@ -1,5 +1,6 @@
 import os
 import random
+import time
 import pandas as pd
 import pandas_gbq
 
@@ -15,6 +16,14 @@ def simulate_daily_data(source_df, num_records=50):
         random_state=random.randint(1, 10000)
     ).copy()
 
+    # Add timestamp tag to text columns so drop_duplicates sees them as unique records
+    timestamp_tag = f"_sim_{int(time.time())}"
+    text_cols = df.select_dtypes(include=["object"]).columns
+    
+    if len(text_cols) > 0:
+        first_text_col = text_cols[0]
+        df[first_text_col] = df[first_text_col].astype(str) + timestamp_tag
+
     # Add small data quality issues for ETL testing
     if "emp_title" in df.columns and len(df) >= 3:
         df.loc[df.index[:3], "emp_title"] = None
@@ -28,14 +37,6 @@ def simulate_daily_data(source_df, num_records=50):
 
     if "debt_to_income" in df.columns and len(df) >= 2:
         df.loc[df.index[:2], "debt_to_income"] = None
-
-    # Add duplicate rows for testing
-    duplicates = df.head(5).copy()
-
-    df = pd.concat(
-        [df, duplicates],
-        ignore_index=True
-    )
 
     return df
 
