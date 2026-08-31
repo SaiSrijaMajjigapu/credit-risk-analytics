@@ -1,166 +1,58 @@
 import os
-import random
-import time
 import pandas as pd
 import pandas_gbq
 
-# Data Simulator
-def simulate_daily_data(source_df, num_records=50):
+
+# Extract & Simulate Step
+def extract_data(file_path, num_records=50):
     """
-    Simulate incoming loan records using the existing
-    cleaned + feature-engineered dataset.
-    """
-    # Select 50 random records
-    df = source_df.sample(
-        n=min(num_records, len(source_df)),
-        random_state=random.randint(1, 10000)
-    ).copy()
-
-    # Add timestamp tag to text columns so drop_duplicates sees them as unique records
-    timestamp_tag = f"_sim_{int(time.time())}"
-    text_cols = df.select_dtypes(include=["object"]).columns
-    
-    if len(text_cols) > 0:
-        first_text_col = text_cols[0]
-        df[first_text_col] = df[first_text_col].astype(str) + timestamp_tag
-
-    # Add small data quality issues for ETL testing
-    if "emp_title" in df.columns and len(df) >= 3:
-        df.loc[df.index[:3], "emp_title"] = None
-
-    if "emp_title" in df.columns and len(df) >= 6:
-        df.loc[df.index[3:6], "emp_title"] = (
-            "  "
-            + df.loc[df.index[3:6], "emp_title"].astype(str)
-            + "  "
-        )
-
-    if "debt_to_income" in df.columns and len(df) >= 2:
-        df.loc[df.index[:2], "debt_to_income"] = None
-
-    return df
-
-
-# Extract Step
-def extract_data(file_path, use_simulation=True):
-    """
-    Extract data from the source CSV.
+    Extract data from source CSV and simulate incoming daily records.
     """
     try:
         source_df = pd.read_csv(file_path)
+        print(f"Source loaded successfully: {source_df.shape[0]} rows.")
 
-        print("Source dataset loaded successfully!")
-        print(
-            f"Source Rows: {source_df.shape[0]} | "
-            f"Source Columns: {source_df.shape[1]}"
-        )
-
-        if use_simulation:
-            df = simulate_daily_data(
-                source_df,
-                num_records=50
-            )
-
-            print("\nSimulated incoming data created successfully!")
-            print(
-                f"Incoming Rows: {df.shape[0]} | "
-                f"Incoming Columns: {df.shape[1]}"
-            )
-
-            return df
-        else:
-            print("\nReal data extracted successfully!")
-            return source_df
+        # Sample records to simulate incoming batch
+        df = source_df.sample(n=min(num_records, len(source_df))).copy()
+        print(f"Simulated batch created: {df.shape[0]} incoming rows.")
+        return df
 
     except Exception as e:
-        print(f"Error loading data: {e}")
+        print(f"Error loading source data: {e}")
         return None
 
 
 # Transform Step
 def transform_data(df):
     """
-    Clean and validate incoming loan data.
+    Clean text formatting, fill missing values, deduplicate, and validate business logic.
     """
     try:
         df_clean = df.copy()
 
-        print("\nStarting data transformation...")
-
         # Clean text columns
-        text_cols = df_clean.select_dtypes(
-            include=["object"]
-        ).columns
-
+        text_cols = df_clean.select_dtypes(include=["object"]).columns
         for col in text_cols:
-            df_clean[col] = (
-                df_clean[col]
-                .fillna("not_provided")
-                .astype(str)
-                .str.strip()
-            )
+            df_clean[col] = df_clean[col].fillna("not_provided").astype(str).str.strip()
 
-        print("Text columns cleaned successfully!")
-
-        # Fill missing numeric values with 0
-        num_cols = df_clean.select_dtypes(
-            include=["number"]
-        ).columns
-
+        # Fill missing numeric values
+        num_cols = df_clean.select_dtypes(include=["number"]).columns
         for col in num_cols:
             df_clean[col] = df_clean[col].fillna(0)
 
-        print("Missing numeric values handled successfully!")
-
-        # Remove duplicate rows
+        # Deduplicate records
         rows_before = len(df_clean)
         df_clean = df_clean.drop_duplicates()
-        duplicates_removed = rows_before - len(df_clean)
+        print(f"Duplicate records removed: {rows_before - len(df_clean)}")
 
-        print(
-            f"Duplicate records removed: "
-            f"{duplicates_removed}"
-        )
-
-        # Basic business validation: loan amount
+        # Validate business logic
         if "loan_amount" in df_clean.columns:
-            before = len(df_clean)
-            df_clean = df_clean[
-                df_clean["loan_amount"] > 0
-            ]
-            print(
-                f"Invalid loan amount records removed: "
-                f"{before - len(df_clean)}"
-            )
+            df_clean = df_clean[df_clean["loan_amount"] > 0]
 
-        # Basic business validation: annual income
         if "annual_income" in df_clean.columns:
-            before = len(df_clean)
-            df_clean = df_clean[
-                df_clean["annual_income"] > 0
-            ]
-            print(
-                f"Invalid annual income records removed: "
-                f"{before - len(df_clean)}"
-            )
+            df_clean = df_clean[df_clean["annual_income"] > 0]
 
-        # Basic business validation: DTI
-        if "debt_to_income" in df_clean.columns:
-            before = len(df_clean)
-            df_clean = df_clean[
-                df_clean["debt_to_income"] >= 0
-            ]
-            print(
-                f"Negative DTI records removed: "
-                f"{before - len(df_clean)}"
-            )
-
-        print("\nData transformed successfully!")
-        print(
-            f"Final Rows: {df_clean.shape[0]} | "
-            f"Final Columns: {df_clean.shape[1]}"
-        )
-
+        print(f"Data transformed successfully: {df_clean.shape[0]} valid rows.")
         return df_clean
 
     except Exception as e:
@@ -169,33 +61,14 @@ def transform_data(df):
 
 
 # Load Step
-def load_data(
-    df,
-    output_path,
-    project_id,
-    dataset_table
-):
+def load_data(df, output_path, project_id, dataset_table):
     """
-    Save processed data locally and append it to BigQuery.
+    Save local backup CSV and append batch to BigQuery.
     """
     try:
-        output_dir = os.path.dirname(output_path)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        df.to_csv(output_path, index=False)
 
-        if output_dir:
-            os.makedirs(
-                output_dir,
-                exist_ok=True
-            )
-
-        df.to_csv(
-            output_path,
-            index=False
-        )
-
-        print("\nLocal backup CSV saved successfully!")
-        print(f"Saved to: {output_path}")
-
-        # Append data to BigQuery
         pandas_gbq.to_gbq(
             dataframe=df,
             destination_table=dataset_table,
@@ -203,46 +76,34 @@ def load_data(
             if_exists="append"
         )
 
-        print("\nData appended successfully to BigQuery!")
-        print(f"BigQuery Table: {dataset_table}")
-
+        print(f"Successfully appended {len(df)} rows to BigQuery table: {dataset_table}")
         return True
 
     except Exception as e:
-        print(f"Error loading data: {e}")
+        print(f"Error loading data to BigQuery: {e}")
         return False
 
 
 # Pipeline Execution
 if __name__ == "__main__":
-
-    # Set up simple relative file paths
     input_file = os.path.join("data", "credit_risk_analytics.csv")
     output_file = os.path.join("data", "processed_loan_data.csv")
 
-    # BigQuery details
     GCP_PROJECT_ID = "credit-risk-analytics-504412"
     BIGQUERY_TABLE = "loan_portfolio.loan_clean"
 
-    print("Starting Loan Credit Risk ETL Pipeline...")
-
-    # Extract and simulate
-    raw_df = extract_data(
-        file_path=input_file,
-        use_simulation=True
-    )
-
-    # Transform and load
+    print("Starting Credit Risk ETL Pipeline...")
+    
+    raw_df = extract_data(input_file)
     if raw_df is not None:
         cleaned_df = transform_data(raw_df)
-
         if cleaned_df is not None:
-            load_success = load_data(
-                df=cleaned_df,
-                output_path=output_file,
-                project_id=GCP_PROJECT_ID,
-                dataset_table=BIGQUERY_TABLE
+            success = load_data(
+                cleaned_df,
+                output_file,
+                GCP_PROJECT_ID,
+                BIGQUERY_TABLE
             )
-
-            if load_success:
-                print("\nETL Pipeline completed successfully!")
+            
+            if success:
+                print("ETL Pipeline completed successfully!")
