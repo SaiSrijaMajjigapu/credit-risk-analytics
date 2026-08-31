@@ -1,0 +1,31 @@
+name: Credit Risk Daily ETL Pipeline
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs automatically every day at midnight UTC
+  workflow_dispatch:      # Allows manual trigger anytime from GitHub UI
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas google-cloud-bigquery pyarrow
+
+      - name: Run ETL Script
+        run: python etl.py
