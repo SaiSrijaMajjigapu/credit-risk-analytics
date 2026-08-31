@@ -1,0 +1,6 @@
+# Ignore secret credentials & local keys
+*.json
+*.csv
+__pycache__/
+.env
+.vscode/
