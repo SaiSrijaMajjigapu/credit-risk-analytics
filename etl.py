@@ -215,11 +215,9 @@ def load_data(
 # Pipeline Execution
 if __name__ == "__main__":
 
-    # Set up dynamic relative file paths
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    input_file = os.path.join(BASE_DIR, "data", "credit_risk_analytics.csv")
-    output_file = os.path.join(BASE_DIR, "data", "processed_loan_data.csv")
+    # Set up simple relative file paths
+    input_file = os.path.join("data", "credit_risk_analytics.csv")
+    output_file = os.path.join("data", "processed_loan_data.csv")
 
     # BigQuery details
     GCP_PROJECT_ID = "credit-risk-analytics-504412"
