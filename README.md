@@ -31,7 +31,7 @@ Orchestration & CI/CD: GitHub Actions
 Security & IAM: GCP Service Accounts, Encrypted GitHub Secrets
 
 Reporting: Power BI
-Automation & Workflow
+## Automation & Workflow
 Managed via .github/workflows/etl_workflow.yml:
 
 Scheduled Runs: Automated daily execution at 00:00 UTC via Cron (0 0 * * *).
@@ -39,7 +39,7 @@ Scheduled Runs: Automated daily execution at 00:00 UTC via Cron (0 0 * * *).
 Manual Trigger: Supports on-demand execution via workflow_dispatch in the GitHub interface.
 
 Authentication: Passes encrypted GCP credentials (GCP_SA_KEY) safely to the runner environment at execution time.
-Repository Structure
+## Repository Structure
 Plaintext
 ├── .github/
 │   └── workflows/
