@@ -40,7 +40,8 @@ Manual Trigger: Supports on-demand execution via workflow_dispatch in the GitHub
 
 Authentication: Passes encrypted GCP credentials (GCP_SA_KEY) safely to the runner environment at execution time.
 ## Repository Structure
-Plaintext
+```text
+credit-risk-analytics/
 ├── .github/
 │   └── workflows/
 │       └── etl_workflow.yml   # Automation setup
@@ -50,3 +51,4 @@ Plaintext
 ├── etl.py                     # Primary Python script
 ├── requirements.txt            # Python packages needed
 └── .gitignore                 # Files excluded from GitHub
+```
