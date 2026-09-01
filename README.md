@@ -46,9 +46,8 @@ credit-risk-analytics/
 │   └── workflows/
 │       └── etl_workflow.yml   # Automation setup
 ├── data/
-│   ├── credit_risk_analytics.csv   # Input dataset
-│   └── processed_loan_data.csv     # Processed output backup
-├── etl.py                     # Primary Python script
-├── requirements.txt            # Python packages needed
-└── .gitignore                 # Files excluded from GitHub
+│   └── credit_risk_analytics.csv   # Input dataset
+├── .gitignore                 # Files excluded from GitHub
+├── README.md
+└── etl.py                     # Primary Python script
 ```
