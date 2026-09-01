@@ -20,7 +20,7 @@ Google BigQuery Data Warehouse (`loan_portfolio.loan_clean`)
        │
        ▼
 Power BI Executive Risk Dashboard
-Tech Stack & Tools
+## Tech Stack & Tools
 Data Processing: Python 3.10, Pandas, pandas-gbq
 
 Cloud & Storage: Google Cloud Platform (GCP), BigQuery
