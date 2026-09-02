@@ -52,6 +52,7 @@ The Power BI dashboard provides an overview of the loan portfolio, credit risk, 
     <td><img src="screenshots/screenshot(638).png" width="100%"></td>
   </tr>
 </table>
+
 ## Key Skills Demonstrated
 * Data Processing & ETL: Python, Pandas, Data Cleaning & Validation
 
