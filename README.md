@@ -39,6 +39,11 @@ Scheduled Runs: Automated daily execution at 00:00 UTC via Cron (0 0 * * *).
 Manual Trigger: Supports on-demand execution via workflow_dispatch in the GitHub interface.
 
 Authentication: Passes encrypted GCP credentials (GCP_SA_KEY) safely to the runner environment at execution time.
+## Key Skills Demonstrated
+* Data Processing & ETL: Python, Pandas, Data Cleaning & Validation
+* Cloud Storage: Google Cloud BigQuery
+* Automation: GitHub Actions (Scheduled Daily Runs)
+* Data Visualization: Power BI, Interactive Dashboards
 ## Repository Structure
 ```text
 credit-risk-analytics/
