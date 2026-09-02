@@ -40,7 +40,18 @@ Managed via .github/workflows/etl_workflow.yml:
 
 * Authentication: Passes encrypted GCP credentials (GCP_SA_KEY) safely to the runner environment at execution time.
 ## Power BI Dashboard
-![Credit Risk Analytics Dashboard Overview](dashboard_overview.png)
+The Power BI dashboard provides an overview of the loan portfolio, credit risk, loan performance, and key financial KPIs.
+
+<table>
+  <tr>
+    <td><img src="screenshots/Screenshot(635).png" width="100%"></td>
+    <td><img src="screenshots/screenshot(636).png" width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/screenshot(637).png" width="100%"></td>
+    <td><img src="screenshots/screenshot(638).png" width="100%"></td>
+  </tr>
+</table>
 ## Key Skills Demonstrated
 * Data Processing & ETL: Python, Pandas, Data Cleaning & Validation
 
