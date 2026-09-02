@@ -44,12 +44,12 @@ The Power BI dashboard provides an overview of the loan portfolio, credit risk, 
 
 <table>
   <tr>
-    <td><img src="screenshots/Screenshot(635).png" width="100%"></td>
-    <td><img src="screenshots/screenshot(636).png" width="100%"></td>
+    <td><img src="Screenshot(635).png" width="100%"></td>
+    <td><img src="Screenshot(636).png" width="100%"></td>
   </tr>
   <tr>
-    <td><img src="screenshots/screenshot(637).png" width="100%"></td>
-    <td><img src="screenshots/screenshot(638).png" width="100%"></td>
+    <td><img src="Screenshot(637).png" width="100%"></td>
+    <td><img src="Screenshot(638).png" width="100%"></td>
   </tr>
 </table>
 
